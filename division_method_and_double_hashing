@@ -1,0 +1,137 @@
+# ============================================================
+# HASH TABLE IMPLEMENTATION
+# Prepared by: Jun Y. Ercia
+# Hashing Method: Division Method
+# Collision-Resolution Method: Double Hashing
+#
+# Primary Hash Function:
+#   h1(k) = k mod N
+#
+# Secondary Hash Function:
+#   h2(k) = q - (k mod q)
+#
+# Double Hashing Formula:
+#   index = (h1(k) + i * h2(k)) mod N
+#
+# where:
+#   N = table size
+#   q = prime number smaller than N
+#   i = 0, 1, 2, 3, ...
+# ============================================================
+
+
+class HashTable:
+    DELETED = "<DELETED>"
+
+    def __init__(self, size, q):
+        # Create an empty hash table
+        self.size = size
+        self.q = q
+        self.table = [None] * size
+
+    def hash1(self, key):
+        # Division Method
+        return key % self.size
+
+    def hash2(self, key):
+        # Secondary hash function
+        return self.q - (key % self.q)
+
+    def insert(self, key):
+        # Compute the two hash values
+        h1 = self.hash1(key)
+        h2 = self.hash2(key)
+
+        # Double hashing
+        for i in range(self.size):
+            index = (h1 + i * h2) % self.size
+
+            if self.table[index] is None or self.table[index] == self.DELETED:
+                self.table[index] = key
+                return True
+
+        print("Hash table is full.")
+        return False
+
+    def search(self, key):
+        # Compute the two hash values
+        h1 = self.hash1(key)
+        h2 = self.hash2(key)
+
+        # Follow the same probing sequence
+        for i in range(self.size):
+            index = (h1 + i * h2) % self.size
+
+            # Stop when an unused slot is found
+            if self.table[index] is None:
+                return -1
+
+            if self.table[index] == key:
+                return index
+
+        return -1
+
+    def delete(self, key):
+        # Find the key first
+        index = self.search(key)
+
+        if index != -1:
+            # Mark the slot as deleted
+            self.table[index] = self.DELETED
+            return True
+
+        return False
+
+    def display(self):
+        print("\nHASH TABLE")
+        print("--------------------")
+
+        for index in range(self.size):
+            if self.table[index] is None:
+                print(index, "-> Empty")
+
+            elif self.table[index] == self.DELETED:
+                print(index, "-> Deleted")
+
+            else:
+                print(index, "->", self.table[index])
+
+
+# ============================================================
+# MAIN PROGRAM
+# ============================================================
+
+# N should be prime.
+# q should also be prime and smaller than N.
+hash_table = HashTable(13, 7)
+
+# Keys to insert
+keys = [18, 41, 22, 44, 59, 32, 31, 73]
+
+# Insert all keys
+for key in keys:
+    hash_table.insert(key)
+
+# Display the hash table
+hash_table.display()
+
+# Search for a key
+print("\nSearch for 31:")
+
+index = hash_table.search(31)
+
+if index != -1:
+    print("31 was found at index", index)
+else:
+    print("31 was not found.")
+
+# Delete a key
+print("\nDelete 44:")
+
+if hash_table.delete(44):
+    print("44 was deleted.")
+else:
+    print("44 was not found.")
+
+# Display the updated hash table
+hash_table.display()
